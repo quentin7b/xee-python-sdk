@@ -6,7 +6,7 @@ A utility library for [Xee API](https://dev.xee.com) with Python 3.
 
 ## Version
 
-Current version is [3.0.2](https://github.com/quentin7b/xee-sdk-python/releases/tag/3.0.2)
+Current version is [3.0.1](https://github.com/quentin7b/xee-sdk-python/releases/tag/3.0.1)
 
 ## Install
 
