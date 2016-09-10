@@ -310,7 +310,7 @@ def parse_status(status):
                           isodate.parse_datetime(accelerometer['date'])),
             [parse_signal(signal) for signal in status['signals']]
         )
-    except ValueError as err:
+    except (ValueError,TypeError) as err:
         raise xee_exceptions.ParseException(err)
 
 
