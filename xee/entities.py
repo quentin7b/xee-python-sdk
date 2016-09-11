@@ -6,6 +6,7 @@ import collections
 import isodate
 
 import xee.exceptions as xee_exceptions
+import xee.utils as xee_utils
 
 # Class list
 
@@ -241,7 +242,8 @@ def parse_signal(signal):
         return Signal(
             signal['name'],
             signal['value'],
-            isodate.parse_datetime(signal['date'])
+#            isodate.parse_datetime(signal['date'])
+            xee_utils.totimestamp(signal['date'])
         )
     except ValueError as err:
         raise xee_exceptions.ParseException(err)
@@ -275,7 +277,8 @@ def parse_location(location):
             location['altitude'],
             location['satellites'],
             location['heading'],
-            isodate.parse_datetime(location['date'])
+#            isodate.parse_datetime(location['date'])
+            xee_utils.totimestamp(location['date'])
         )
     except ValueError as err:
         raise xee_exceptions.ParseException(err)
@@ -309,7 +312,8 @@ def parse_status(status):
             if accelerometer_dict:
                 accelerometer = Accelerometer(accelerometer_dict['x'], accelerometer_dict['y'],
                                               accelerometer_dict['z'],
-                                              isodate.parse_datetime(accelerometer_dict['date']))
+#                                              isodate.parse_datetime(accelerometer_dict['date']))
+                                              xee_utils.totimestamp(accelerometer_dict['date']))
         location = None
         if 'location' in status:
             location_dict = status['location']
