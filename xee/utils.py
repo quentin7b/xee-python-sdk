@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf8
 """This script contains the helpers for the 3rd version of the API"""
+from __future__ import division
+from datetime import datetime, timedelta
 
 import requests
 
@@ -43,3 +45,8 @@ def do_get_request(route, bearer):
                                               str(first_error['tip']))
         else:
             raise Exception(response)
+
+def totimestamp(dt, epoch=datetime(1970,1,1)):
+    date = datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S.%fZ')
+    td = date - epoch
+    return (td.microseconds + (td.seconds + td.days * 86400) * 10**6) / 10**6
