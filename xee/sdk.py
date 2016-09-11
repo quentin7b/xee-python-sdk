@@ -2,7 +2,14 @@
 # coding: utf8
 """This script contains the Xee python SDK"""
 
-import urllib.parse
+import urllib
+
+try:
+    import urlib.parse
+except: ImportError:
+    import urlparse
+
+from urlparse import urlparse
 
 import isodate
 import requests
@@ -57,9 +64,9 @@ class Xee(object):
         """
         route = '{host}/auth/auth'.format(host=self.host)
         if state is None:
-            query_params = urllib.parse.urlencode({'client_id': self.client_id})
+            query_params = urllib.urlencode({'client_id': self.client_id})
         else:
-            query_params = urllib.parse.urlencode({'client_id': self.client_id, 'state': state})
+            query_params = urllib.urlencode({'client_id': self.client_id, 'state': state})
         return '{route}?{params}'.format(route=route, params=query_params)
 
     def get_token_from_code(self, code):
