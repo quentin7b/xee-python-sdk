@@ -5,7 +5,7 @@
 import urllib
 
 try:
-    import urlib.parse
+    import urllib.parse
 except: ImportError:
     import urlparse
 
