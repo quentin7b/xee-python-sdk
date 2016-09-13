@@ -62,7 +62,7 @@ print(status)
 ```
 
 ```python
-signal , error = xee.get_signals(carId,token.access_token,name=['odometer', 'FuelLevel'])
+signal , error = xee.get_signals(carId,token.access_token,names=['odometer', 'FuelLevel'])
 print(signal)
 ```
 
