@@ -264,7 +264,7 @@ class Xee(object):
         if options.get('names', None) is not None:
             params['name'] = ','.join(options['names'])
         if bool(params):
-            route = '?'.join([route, urllib.parse.urlencode(params)])
+            route = '?'.join([route, urllib.urlencode(params)])
         try:
             response = xee_utils.do_get_request(route, access_token)
             return [xee_entities.parse_signal(signal) for signal in response], None
@@ -310,7 +310,7 @@ class Xee(object):
         if options.get('end', None) is not None:
             params['end'] = isodate.datetime_isoformat(options['end'])
         if bool(params):
-            route = '?'.join([route, urllib.parse.urlencode(params)])
+            route = '?'.join([route, urllib.urlencode(params)])
         try:
             response = xee_utils.do_get_request(route, access_token)
             return [xee_entities.parse_location(location) for location in response], None
@@ -351,7 +351,7 @@ class Xee(object):
         if end is not None:
             params['end'] = isodate.datetime_isoformat(end)
         if bool(params):
-            route = '?'.join([route, urllib.parse.urlencode(params)])
+            route = '?'.join([route, urllib.urlencode(params)])
         try:
             response = xee_utils.do_get_request(route, access_token)
             return [xee_entities.parse_trip(trip) for trip in response], None
@@ -397,7 +397,7 @@ class Xee(object):
         if options.get('initial_value', None) is not None:
             params['initialValue'] = int(options.get('initial_value'))
         if bool(params):
-            route = '?'.join([route, urllib.parse.urlencode(params)])
+            route = '?'.join([route, urllib.urlencode(params)])
         try:
             response = xee_utils.do_get_request(route, access_token)
             return xee_entities.parse_used_time(response), None
@@ -440,7 +440,7 @@ class Xee(object):
         if options.get('initial_value', None) is not None:
             params['initialValue'] = float(options.get('initial_value'))
         if bool(params):
-            route = '?'.join([route, urllib.parse.urlencode(params)])
+            route = '?'.join([route, urllib.urlencode(params)])
         try:
             response = xee_utils.do_get_request(route, access_token)
             return xee_entities.parse_mileage(response), None
@@ -499,7 +499,7 @@ class Xee(object):
         if names is not None:
             params['name'] = ','.join(names)
         if bool(params):
-            route = '{route}?{params}'.format(route=route, params=urllib.parse.urlencode(params))
+            route = '{route}?{params}'.format(route=route, params=urllib.urlencode(params))
         try:
             response = xee_utils.do_get_request(route, access_token)
             signals = [xee_entities.parse_signal(signal) for signal in response]
