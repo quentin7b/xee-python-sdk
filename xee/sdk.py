@@ -534,3 +534,32 @@ class Xee(object):
             return [], None
         except (xee_exceptions.APIException, xee_exceptions.ParseException) as err:
             return None, err
+
+    def get_trip_stats(self, trip_id, access_token):
+        """
+        Fetch a list of stats for a specific trip.
+
+        Parameters
+        ----------
+        trip_id         :   str
+                            the id of the trip you are looking for the stats.
+        access_token    :   str
+                            the access token of the user.
+
+        Returns
+        -------
+        tuple
+            A tuple containing [TripStat], Error.
+            The error is None if everything went fine.
+
+        """
+        route = '{host}/trips/{trip_id}/stats'.format(host=self.host, trip_id=trip_id)
+        try:
+            response = xee_utils.do_get_request(route, access_token)
+            stats = [xee_entities.parse_trip_stat(stat) for stat in response]
+            return stats, None
+        except ValueError:
+            # Happens when the locations list is empty
+            return [], None
+        except (xee_exceptions.APIException, xee_exceptions.ParseException) as err:
+            return None, err

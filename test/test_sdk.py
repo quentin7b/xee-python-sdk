@@ -483,6 +483,60 @@ class TestTripSignals(unittest.TestCase):
         self.assertListEqual(locations, expected)
 
 
+class TestTripStats(unittest.TestCase):
+    @responses.activate
+    def test_get_stats(self):
+        # Mock https://github.com/xee-lab/xee-api-docs/blob/master/api/api/v3/trips/trip_id/stats.md
+        responses.add(responses.GET, host + "/trips/56b43a4f051f29071f14218d/stats",
+                      json=[
+                          {
+                              "type": "MILEAGE",
+                              "value": 5.800642496450446
+                          },
+                          {
+                              "type": "USED_TIME",
+                              "value": 980
+                          }
+                      ],
+                      status=200)
+        stats, err = xee.get_trip_stats("56b43a4f051f29071f14218d", "fake_access_token")
+        self.assertEqual(len(stats), 2)
+        self.assertEqual(stats[0].type, 'MILEAGE')
+        self.assertEqual(stats[0].value, 5.800642496450446)
+        self.assertEqual(stats[1].type, 'USED_TIME')
+        self.assertEqual(stats[1].value, 980)
+
+    @responses.activate
+    def test_get_stats_empty(self):
+        # Mock https://github.com/xee-lab/xee-api-docs/blob/master/api/v3/trips
+        # /56b43a4f051f29071f14218d/signals.md
+        responses.add(responses.GET, host + "/trips/56b43a4f051f29071f14218d/stats",
+                      json=[],
+                      status=200)
+        stats, err = xee.get_trip_stats("56b43a4f051f29071f14218d", "fake_access_token")
+        expected = []
+        self.assertListEqual(stats, expected)
+
+    @responses.activate
+    def test_get_stats_trip_does_not_exists(self):
+        # Mock https://github.com/xee-lab/xee-api-docs/blob/master/api/v3/trips
+        # /56b43a4f051f29071f14218d/signals.md
+        responses.add(responses.GET, host + "/trips/56b43a4f051f29071f14218d/stats",
+                      json=[
+                          {
+                              "type": "PARAMETERS_ERROR",
+                              "message": "Trip not found",
+                              "tip": "Please check that the trip exists, looks like it does not"
+                          }
+                      ],
+                      status=404)
+        stats, err = xee.get_trip_stats("56b43a4f051f29071f14218d", "fake_access_token")
+        self.assertIsNotNone(err)
+        self.assertEqual(err.type, 'PARAMETERS_ERROR')
+        self.assertEqual(err.message, "Trip not found")
+        self.assertEqual(err.tip, "Please check that the trip exists, looks like it does not")
+
+
 class TestErrors(unittest.TestCase):
     @responses.activate
     def test_400(self):
