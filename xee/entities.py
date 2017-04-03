@@ -324,7 +324,7 @@ def parse_status(status):
             accelerometer,
             [parse_signal(signal) for signal in status['signals']]
         )
-    except ValueError as err:
+    except (ValueError,TypeError) as err:
         raise xee_exceptions.ParseException(err)
 
 
