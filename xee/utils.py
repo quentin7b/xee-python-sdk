@@ -33,13 +33,14 @@ def do_get_request(route, bearer):
 
     """
     request = requests.get(route, headers={'Authorization': 'Bearer ' + bearer})
+    print ("status code",request.status_code)
     response = request.json()
+    print ("response=", response)
     if request.status_code == 200:
+        print("response", response)
         return response
     else:
-        first_error = response[0]
         if request.status_code in [400, 401, 403, 404, 416, 500]:
-            raise xee_exceptions.APIException(str(first_error['type']), str(first_error['message']),
-                                              str(first_error['tip']))
+            raise xee_exceptions.APIException(str(response['error']), str(response['error_description']))
         else:
             raise Exception(response)
