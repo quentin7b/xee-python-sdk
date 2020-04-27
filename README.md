@@ -19,7 +19,18 @@ from xee import Xee
 
 xee = Xee(client_id="your_client_id", 
 		client_secret="your_client_secret", 
-		redirect_uri="your://redirect:uri")
+		redirect_uri="your://redirect:uri"
+		scope=(
+            	    AuthScope.VEHICLES_READ,
+            	    AuthScope.VEHICLES_READ_SIGNALS,
+            	    AuthScope.VEHICLES_READ_LOCATIONS,
+            	    AuthScope.VEHICLES_READ_EVENTS,
+            	    AuthScope.VEHICLES_READ_ACCELEROMETERS,
+            	    AuthScope.VEHICLES_READ_DEVICE_DATA,
+            	    AuthScope.ACCOUNT_READ,
+            	    AuthScope.VEHICLES_MANAGEMENT
+            	    )
+	    )
 ```
 
 ## Using the SDK
