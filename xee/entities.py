@@ -20,27 +20,28 @@ Token = collections.namedtuple(
 User = collections.namedtuple(
     'User',
     [
-        'id',
-        'last_name',
-        'first_name',
-        'nick_name',
+        'createdAt',
+        'email',
+        'firstName',
         'gender',
-        'birth_date',
-        'licence_delivery_date',
-        'role',
-        'is_location_enabled'
+        'id',
+        'lastName',
+        'updatedAt'
     ])
 Car = collections.namedtuple(
     'Car',
     [
+        'brand',
+        'createdAt',
+        'firstEntryIntoService',
+        'fleetId',
         'id',
-        'name',
-        'make',
+        'kType',
+        'licensePlate',
         'model',
-        'year',
-        'number_plate',
-        'device_id',
-        'cardb_id'
+        'name',
+        'updatedAt',
+        'userId'
     ])
 Signal = collections.namedtuple(
     'Signal',
@@ -57,6 +58,7 @@ Location = collections.namedtuple(
         'altitude',
         'satellites',
         'heading',
+        'hacc',
         'date'
     ])
 Accelerometer = collections.namedtuple(
@@ -162,23 +164,16 @@ def parse_user(user):
         If the dict does not contains the correct data.
 
     """
-    birth_date = None
-    if user['birthDate']:
-        birth_date = isodate.parse_datetime(user['birthDate'])
-    licence_delivery_date = None
-    if user['licenseDeliveryDate']:
-        licence_delivery_date = isodate.parse_datetime(user['licenseDeliveryDate'])
+    print("user=",user)
     try:
         return User(
+            user['createdAt'],
+            user['email'],
+            user['firstName'],
+            user['gender'],
             user['id'],
             user['lastName'],
-            user['firstName'],
-            user['nickName'],
-            user['gender'],
-            birth_date,
-            licence_delivery_date,
-            user['role'],
-            user['isLocationEnabled']
+            user['updatedAt']
         )
     except ValueError as err:
         raise xee_exceptions.ParseException(err)
@@ -207,14 +202,17 @@ def parse_car(car):
     """
     try:
         return Car(
+            car['brand'],
+            car['createdAt'],
+            car['firstEntryIntoService'],
+            car['fleetId'],
             car['id'],
-            car['name'],
-            car['make'],
+            car['kType'],
+            car['licensePlate'],
             car['model'],
-            car['year'],
-            car['numberPlate'],
-            car['deviceId'],
-            car['cardbId']
+            car['name'],
+            car['updatedAt'],
+            car['userId']
         )
     except ValueError as err:
         raise xee_exceptions.ParseException(err)
@@ -277,8 +275,9 @@ def parse_location(location):
             location['latitude'],
             location['longitude'],
             location['altitude'],
-            location['satellites'],
+            location['nbSat'],
             location['heading'],
+            location['hacc'],
             isodate.parse_datetime(location['date'])
         )
     except ValueError as err:
