@@ -18,11 +18,10 @@ class APIException(Exception):
         see https://github.com/xee-lab/xee-api-docs/tree/master/api/api/v3#errors
     """
 
-    def __init__(self, type_, message, tip):
-        super(APIException, self).__init__(message)
-        self.type = type_
-        self.message = message
-        self.tip = tip
+    def __init__(self, error, error_description):
+        super(APIException, self).__init__(error_description)
+        self.error = error
+        self.error_description = error_description
 
     def __str__(self):
         return str(self.__dict__)
