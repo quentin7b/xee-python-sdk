@@ -7,8 +7,13 @@ try:
 except ImportError:
     import urllib as url_parser
 
+import base64
+
+import arrow
 import isodate
 import requests
+from oauthlib.oauth2 import WebApplicationClient
+from requests_oauthlib import OAuth2Session
 
 import xee.entities as xee_entities
 import xee.exceptions as xee_exceptions
@@ -17,10 +22,13 @@ import xee.utils as xee_utils
 
 class Xee(object):
     """
-        SDK for Xee platform v3.0
+        SDK for Xee platform v4.0
     """
+    URL = "https://api.xee.com"
+    PATH_AUTHORIZE = "v4/oauth/authorize"
+    PATH_TOKEN = "v4/oauth/token"  # nosec
 
-    def __init__(self, client_id, client_secret, redirect_uri, env='cloud'):
+    def __init__(self, client_id, client_secret, redirect_uri, scope):
         """
         Initialize a new Xee SDK.
 
@@ -32,17 +40,20 @@ class Xee(object):
                             The client secret of your app.
         redirect_uri    :   str
                             The redirect uri of your app.
-        env             :   str, optional
-                            The environment you want for the requests.
-                            Can be 'cloud' or 'sandbox'.
-                            Default is 'cloud'.
-
+        scope           :   Enum
+                            The list of scope use to get data.
         """
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
-        self.host = 'https://{env}.xee.com/v3'.format(env=env)
-
+        self.host = 'https://api.xee.com/v4'
+        self._scope = scope
+        self._session = OAuth2Session(
+            self.client_id,
+            redirect_uri=self.redirect_uri,
+            scope=" ".join((scope.value for scope in self._scope)),
+        )
+    
     def get_authentication_url(self, state=None):
         """
         Generate and return the authentication url to call for the end user.
@@ -58,12 +69,13 @@ class Xee(object):
             The url to call to display the authentication screen.
 
         """
-        route = '{host}/auth/auth'.format(host=self.host)
-        if state is None:
-            query_params = url_parser.urlencode({'client_id': self.client_id})
-        else:
-            query_params = url_parser.urlencode({'client_id': self.client_id, 'state': state})
-        return '{route}?{params}'.format(route=route, params=query_params)
+        """Generate the authorize url."""
+        url = str(
+            self._session.authorization_url("%s/%s" % (self.URL, self.PATH_AUTHORIZE))[
+                0
+            ]
+        )
+        return url
 
     def get_token_from_code(self, code):
         """
@@ -81,22 +93,33 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/auth/access_token'.format(host=self.host)
-        payload = {'grant_type': 'authorization_code', 'code': code}
-        request = requests.post(route, data=payload, auth=(self.client_id, self.client_secret))
-        if request.status_code == 200:
-            response = request.json()
-            return xee_entities.parse_token(response), None
-        else:
-            return None, Exception(request.text)
+        request = self._session.fetch_token(
+            "%s/%s" % (self.URL, self.PATH_TOKEN),
+            headers ={
+                'Authorization':'Basic '+ base64.b64encode(bytes(f"{self.client_id}:{self.client_secret}", "ISO-8859-1")).decode("ascii")
+                },
+            data={
+                'grant_type':'authorization_code',
+                'code':code
+            },
+            code=code,
+            client_secret=self.client_secret,
+            include_client_id=True
+        )
+        #if request.status_code == 200:
+        #    response = request.json()
+        #    return xee_entities.parse_token(response), None
+        #else:
+        #    return None, Exception(request.text)
+        return xee_entities.parse_token(request), None
 
-    def get_token_from_refresh_token(self, refresh_token):
+    def get_token_from_refresh_token(self, refreshtoken):
         """
         Fetch a new token from a refresh token.
 
         Parameters
         ----------
-        refresh_token : str
+        refreshtoken : str
                         the refresh token to use to get a new Token.
 
         Returns
@@ -106,14 +129,20 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/auth/access_token'.format(host=self.host)
-        payload = {'grant_type': 'refresh_token', 'refresh_token': refresh_token}
-        request = requests.post(route, data=payload, auth=(self.client_id, self.client_secret))
-        if request.status_code == 200:
-            response = request.json()
-            return xee_entities.parse_token(response), None
-        else:
-            return None, Exception(request.text)
+        request = self._session.refresh_token(
+            "%s/%s" % (self.URL, self.PATH_TOKEN),
+            headers ={
+                'Authorization':'Basic '+ base64.b64encode(bytes(f"{self.client_id}:{self.client_secret}", "ISO-8859-1")).decode("ascii")
+                },
+            data={
+                'grant_type':'refresh_token',
+                'refresh_token':refreshtoken
+            },
+            #code=refreshtoken,
+            client_secret=self.client_secret,
+            include_client_id=True
+        )
+        return xee_entities.parse_token(request), None
 
     def get_user(self, access_token):
         """
@@ -138,6 +167,7 @@ class Xee(object):
         except (xee_exceptions.APIException, xee_exceptions.ParseException) as err:
             return None, err
 
+
     def get_cars(self, access_token):
         """
         Fetch the cars of the connected user.
@@ -154,7 +184,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/users/me/cars'.format(host=self.host)
+        route = '{host}/users/me/vehicles'.format(host=self.host)
         try:
             response = xee_utils.do_get_request(route, access_token)
             return [xee_entities.parse_car(car) for car in response], None
@@ -181,7 +211,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/cars/{car_id}'.format(host=self.host, car_id=car_id)
+        route = '{host}/vehicles/{car_id}'.format(host=self.host, car_id=car_id)
         try:
             response = xee_utils.do_get_request(route, access_token)
             return xee_entities.parse_car(response), None
@@ -206,7 +236,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/cars/{car_id}/status'.format(host=self.host, car_id=car_id)
+        route = '{host}/vehicles/{car_id}/status'.format(host=self.host, car_id=car_id)
         try:
             response = xee_utils.do_get_request(route, access_token)
             return xee_entities.parse_status(response), None
@@ -244,7 +274,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/cars/{car_id}/signals'.format(host=self.host, car_id=car_id)
+        route = '{host}/vehicles/{car_id}/signals'.format(host=self.host, car_id=car_id)
         params = {}
         o_limit = options.get('limit', None)
         if o_limit is not None:
@@ -297,7 +327,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/cars/{car_id}/locations'.format(host=self.host, car_id=car_id)
+        route = '{host}/vehicles/{car_id}/locations'.format(host=self.host, car_id=car_id)
         params = {}
         if options.get('limit', None) is not None:
             params['limit'] = options['limit']
@@ -340,7 +370,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/cars/{car_id}/trips'.format(host=self.host, car_id=car_id)
+        route = '{host}/vehicles/{car_id}/trips'.format(host=self.host, car_id=car_id)
         params = {}
         if begin is not None:
             params['begin'] = isodate.datetime_isoformat(begin)
@@ -384,7 +414,7 @@ class Xee(object):
             The error is None if everything went fine.
 
         """
-        route = '{host}/cars/{car_id}/stats/usedtime'.format(host=self.host, car_id=car_id)
+        route = '{host}/vehicles/{car_id}/stats/usedtime'.format(host=self.host, car_id=car_id)
         params = {}
         if options.get('begin', None) is not None:
             params['begin'] = isodate.datetime_isoformat(options.get('begin'))
