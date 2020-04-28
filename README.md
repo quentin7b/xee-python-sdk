@@ -19,25 +19,25 @@ from xee import Xee
 
 xee = Xee(client_id="your_client_id", 
 		client_secret="your_client_secret", 
-		redirect_uri="your://redirect:uri"
+		redirect_uri="your://redirect:uri",
 		scope=(
-            	    AuthScope.VEHICLES_READ,
-            	    AuthScope.VEHICLES_READ_SIGNALS,
-            	    AuthScope.VEHICLES_READ_LOCATIONS,
-            	    AuthScope.VEHICLES_READ_EVENTS,
-            	    AuthScope.VEHICLES_READ_ACCELEROMETERS,
-            	    AuthScope.VEHICLES_READ_DEVICE_DATA,
-            	    AuthScope.ACCOUNT_READ,
-            	    AuthScope.VEHICLES_MANAGEMENT
-            	    )
-	    )
+              AuthScope.VEHICLES_READ,
+              AuthScope.VEHICLES_READ_SIGNALS,
+              AuthScope.VEHICLES_READ_LOCATIONS,
+              AuthScope.VEHICLES_READ_EVENTS,
+              AuthScope.VEHICLES_READ_ACCELEROMETERS,
+              AuthScope.VEHICLES_READ_DEVICE_DATA,
+              AuthScope.ACCOUNT_READ,
+              AuthScope.VEHICLES_MANAGEMENT
+          	  )
+		  )
 ```
 
 ## Using the SDK
 
 ### Authentication
 
-#### Getting the [access code url](https://github.com/xee-lab/xee-api-docs/tree/master/api/api/v3/auth/auth.md)
+#### Getting the [access code url](https://dev.xee.com/v4-openapi/#section/Authentication/Authorization-Code-flow)
 
 ```python
 login_url = xee.get_authentication_url()
@@ -45,13 +45,13 @@ login_url = xee.get_authentication_url()
 
 > Then show the webpage to the end user, once the process is complete, we'll redirect to `redirect_uri?code={authorization_code}`. Keep this code in mind
 
-#### Getting a [token from an `authorization_code`](https://github.com/xee-lab/xee-api-docs/tree/master/api/api/v3/auth/access_token.md)
+#### Getting a [token from an `authorization_code`](https://dev.xee.com/v4-openapi/#section/Authentication/Authorization-Code-flow)
 
 ```python
 token, error = xee.get_token_from_code(authorization_code)
 ```
 
-#### Getting a [token from an `refresh_token`](https://github.com/xee-lab/xee-api-docs/tree/master/api/api/v3/auth/access_token.md)
+#### Getting a [token from an `refresh_token`](https://dev.xee.com/v4-openapi/#section/Authentication/Refresh-Token)
 
 ```python
 token, error = xee.get_token_from_refresh_token(token.refresh_token)
@@ -73,7 +73,7 @@ print(status)
 ```
 
 ```python
-signal, error = xee.get_signals(carId, token.access_token,names=['Odometer', 'FuelLevel'])
+signal, error = xee.get_signals(carId, token.access_token)
 print(signal)
 ```
 
@@ -82,7 +82,6 @@ trip_duration, error = xee.get_trip_duration(tripId, token.access_token)
 print(trip_duration.value)
 ```
 
-See the [docs](https://github.com/quentin7b/xee-sdk-python/docs) for more about how to use it
 
 ## Contributing
 
