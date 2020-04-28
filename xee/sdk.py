@@ -15,9 +15,9 @@ import requests
 from oauthlib.oauth2 import WebApplicationClient
 from requests_oauthlib import OAuth2Session
 
-import xee_sdk_python.xee.entities as xee_entities
-import xee_sdk_python.xee.exceptions as xee_exceptions
-import xee_sdk_python.xee.utils as xee_utils
+import xee.entities as xee_entities
+import xee.exceptions as xee_exceptions
+import xee.utils as xee_utils
 
 
 class Xee(object):
