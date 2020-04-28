@@ -15,9 +15,9 @@ import requests
 from oauthlib.oauth2 import WebApplicationClient
 from requests_oauthlib import OAuth2Session
 
-import xee.entities as xee_entities
-import xee.exceptions as xee_exceptions
-import xee.utils as xee_utils
+import xee_sdk_python.xee.entities as xee_entities
+import xee_sdk_python.xee.exceptions as xee_exceptions
+import xee_sdk_python.xee.utils as xee_utils
 
 
 class Xee(object):
@@ -134,12 +134,7 @@ class Xee(object):
             headers ={
                 'Authorization':'Basic '+ base64.b64encode(bytes(f"{self.client_id}:{self.client_secret}", "ISO-8859-1")).decode("ascii")
                 },
-            data={
-                'grant_type':'refresh_token',
-                'refresh_token':refreshtoken
-            },
-            #code=refreshtoken,
-            client_secret=self.client_secret,
+            refresh_token=refreshtoken,
             include_client_id=True
         )
         return xee_entities.parse_token(request), None
@@ -166,7 +161,6 @@ class Xee(object):
             return xee_entities.parse_user(response), None
         except (xee_exceptions.APIException, xee_exceptions.ParseException) as err:
             return None, err
-
 
     def get_cars(self, access_token):
         """
